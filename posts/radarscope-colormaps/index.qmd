@@ -12,9 +12,14 @@ date: "2025-11-27"
 
 A few years ago, I had an opprotunity to participate in the [development](https://github.com/ARM-DOE/pyart/pull/1320) and eventual [proposal](https://github.com/ARM-DOE/pyart/pull/1325) of a radar reflectivity colormap that attempted to balance the trade-off between using lightness reversals to provide qualitative insights into the data, while using them sparingly and strategically to improve the accessibility of the colormaps for users with color vision deficiency. (As an added bonus, this also makes it easier to interpret when printed in grayscale).
 
+![Some of the colormaps we cooked up, now implemented in the cmweather python package](cmaps.png){.lightbox}
+
 These same principles were then applied to colormaps for [correlation coefficient](https://github.com/openradar/cmweather/pull/24) and [differential reflectivity](https://github.com/openradar/cmweather/pull/31). While the widely used NWS colormaps are not *awful* for CVD in these plots, I wanted to (a) do better, even if only by a little bit and (b) have truly open-source colormaps. The oceanography community had already created the "balance" colormap in [cmocean](https://matplotlib.org/cmocean) which works well for divergent variables and was integrated into py-ART for velocity, and I've seen many people use the matplotlib default "cubehelix" colormap for spectrum width. (As an aside, it turns out "cubehelix" is not just a colormap, but a whole [system of creating colormaps](https://people.phy.cam.ac.uk/dag9/CUBEHELIX), which I just learned about and this intrigues me...)
 
 All of our colormaps were rolled into a [publication](https://doi.org/10.1175/BAMS-D-23-0056.1) which I'm honored to be listed as an author of. This was my first real experience with publication and I'm happy it was towards something with an immediate, genuine impact for lots of people. 
 
 In in the interest of spreading CVD-friendly colormaps, I have links above which are "one click" to add to the popular visualization app [RadarScope](https://radarscope.app). If you have at least a "Pro Tier One" (the least expensive of the subscription options) subscription, you can click the link above to add the colormaps to your radarscope app, and try them out by going to radarscope's settings->general->color palettes. 
 
+If you've ponied up the $300 for GR2 Analyst, you can manually download the .pal files for use [here](https://github.com/wx4stg/pal_colormaps) (Click the one you want, then the download icon in the top right, drag->drop into GR2A window)
+
+And finally if you're using python, consider giving [cmweather](https://cmweather.readthedocs.io/en/latest/index.html) an install to have these available in matplotlib. 

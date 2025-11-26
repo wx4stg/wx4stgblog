@@ -1,0 +1,150 @@
+---
+title: "The replacement of ADRAD with ClimaVision’s radar was an objectively good decision."
+author: "Sam Gardner"
+date: "2024-06-23"
+---
+On June 22, 2024, the Aggie Doppler Radar (ADRAD) was removed from the roof of the O&M building and was replaced by a currently-yet-to-be-named ClimaVision radar system. This was met with simultaneous fanfare and criticism. I ran ADRAD for 2 years and became more than a little emotionally invested in the system, and I’m an S-band and open source fanatic, so I was originally disappointed to learn of the agreement. However, after learning the details of the new system, I quickly changed my mind. This got quite long, so I’ve broken it up into sections, generally following the path of an electron through the radar chain.
+
+*This thread is entirely my personal opinion and does not reflect those of TAMU, ClimaVision, TTU, etc. Information gathered from public sources and Chris Nowotarski’s and Chris Weiss’ courses on radar meteorology.*
+
+![ADRAD’s reflector removed by helicopter, June 22 2024](ADRAD-uninstall.jpeg){.lightbox}
+
+### Transmitter
+**Summary**: ADRAD has the advantage of longer wavelength/less attenuation, and longer range with higher nyquist velocity. ClimaVision has the advantage of dual-polarization and higher resolution. Differential Phase and longer pulse lengths can somewhat mitigate the attenuation issue, and the range/nyquist disadvantage can be almost completely mitigated with staggered/dual PRF techniques.
+
+![A magnetron, for reference. The coaxial output is to the right, and the glass bulb on top is a vacuum tube for control.](nowo-magnetron.jpeg){.lightbox}
+
+#### Design
+
+ADRAD contains a single coaxial magnetron capable of producing a peak envelope power of 1 MW with a wavelength of 10.4 cm (S band). The ClimaVision radar has two separate solid-state transmitters capable of producing 500 W PEP each with a wavelength of 3.09-3.25 cm (X band).
+
+![The melting layer as observed by correlation coefficient, a dual polarization product. Source: wikimedia](brightband.png){.lightbox}
+
+The first obvious advantage of having separate Tx/Rx chains is dual pol. To keep this a shorter read for folks familiar with radar, I’ll collapse sections with deeper dives into the radar science that you can open if you want.
+
+::: {.callout-note appearance="simple" collapse=true}
+
+# Dual pol explanation
+
+The summary is that the two separate transmitters send out two separate waves, one of them with the electric field pointed horizontally, and the other pointed vertically. This allows for measuring the power returned (and therefore reflectivity) of volumes in two offset directions. By knowing the direction of the transmitted wave and the amount of power received in each direction, it is possible to derive the differential reflectivity (difference in the reflectance in horizontal and vertical beams, allows for the determinations of the shapes of targets) and correlation coefficient (the statistical correlation between the horizontal and vertical pulses sent to the same sample volume, allows for determination of the similarity of the targets in the region).
+
+:::
+
+Additionally, by having two fully separate transmitters and not just two receivers (*cough*, NEXRAD), linear depolarization ratio (provides more information about shape and canting angle than just differential reflectivity) can also be recovered. The upshot of all this is, real microphysics research can be performed by students and faculty using the new system. I have personally used ADRAD in research presentations, and the limited (reflectivity, velocity, and spectrum width) variables available were a major downside. If I had access to the dual pol moments, specifically differential reflectivity and linear depolarization ratio, I think I could’ve answered more science questions in my projects, and I’m excited to see what future generations of students come up with.
+
+#### ADRAD’s non-coherent transmitter
+
+While the old magnetron allows for a higher transmit power, magnetrons are “phase-incoherent”. Physics details for why are attached below, for interested readers.
+
+::: {#fig-magnetron}
+
+{{< video https://www.youtube.com/embed/uVNrFlid9Wk >}}
+
+A model of a magnetron warming up, depicting the random “mode competition” process before the three electron spokes form.
+
+:::
+
+::: {.callout-note appearance="simple" collapse=true}
+
+# Why Magnetrons are phase incoherent
+
+Magnetrons are specially designed copper cylinders capped by two magnets with their poles facing the same direction. A central cathode receives a large voltage. The electrons in the central cathode are attracted and begin to flow outwards towards the surrounding anode, but are bent into curved paths by the flanking magnets. Due to random charge levels present on the anode, some parts of the outer ring are more attractive than others. The electrons flowing outwards are more dense in the more attractive regions. This has an effect on the outer anode, which is shaped in a way that it forms a miniature inductance-capacitance circuit. As the electrons from the center reach the outer edge, negative charge shifts from one side of the capacitor to the other. The inductors across the two sides of the capacitors delay this, leading to more clumping of the electrons flowing outwards until distinct “spokes” have formed, and the charges in the anode are oscillating at the desired frequency. However, for a brief period at the startup of the magnetron, the spokes have not formed yet. The time for the spokes to form and the oscillations to stabilize is based on the random distribution of charges when the process starts. As can be seen in the video, this only lasts for a few tens of nanoseconds, but this results in the magnetron never producing a consistent phase waveform between pulses.
+
+:::
+
+The disadvantages of non-coherent transmitters are discussed in the following sections…
+
+#### ClimaVision’s Coherent Transmitter, Pulse Compression, and Range Resolution
+
+<blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><p lang="en" dir="ltr">Something BIG is coming soon and we can’t wait to tell you what it is!<br><br>Here’s a pretty big hint though 👀<br><br>More later today! ⚡️ <a href="https://t.co/UAUAcRbdFy">pic.twitter.com/UAUAcRbdFy</a></p>&mdash; Max Crawford 👍 (@KBTXMax) <a href="https://twitter.com/KBTXMax/status/1803845812348404057?ref_src=twsrc%5Etfw">June 20, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+The new ClimaVision radar has a transmitter based on a phase coherent oscillator with solid-state amplification. This means that the outgoing pulse has a consistent and controllable phase. The first impact of this is pulse compression. By using two (or more) separate oscillators pre-amplification that are out of phase with each other, a pulse does not have to take the form of a standard sine or cosine wave. Binary data can be transmitted in the pulse, and can be differentiated in the received signal. Range resolution can therefore be increased by a factor of the number of bits transmitted. Usually, range resolution depends only on pulse length, and increasing range resolution results in lowering the pulse duration and therefore total energy transmitted. ClimaVision’s radar has a gate spacing of 32.15 meters. By assuming a standard 4-subpulse Barker encoding, this gives a pulse duration of 8.5 microseconds compared to ADRAD’s 0.7 microseconds, but because pulse compression is possible with a coherent transmitter, ClimaVision’s radar has nearly 4 times the range resolution.
+
+![](pulse-compression.jpeg){.lightbox}
+
+It’s important to note that while transmitters typically measure their output POWER, the more important metric is the transmitted ENERGY (power times pulse duration).
+
+::: {.callout-note appearance="simple" collapse=true}
+
+# Power vs. Energy explanation
+
+ADRAD’s power is 1,000,000W compared to 500W, suggesting a 2000x more “powerful” radar, but given ClimaVision’s ability to use longer pulse durations without harming range resolution, this is not as much of an issue. It is not trivial to calculate the exact difference because I don’t have measurements of the power envelopes of either ADRAD or ClimaVision’s radars, but even assuming a square wave where both transmitters are immediately at full power when the pulse begins and maintain that power level throughout the entire pulse, this gives 0.7 Joules for ADRAD and 0.00425 Joules for ClimaVision… still much less, but only a roughly 150x multiple, and this is the worst case scenario for ClimaVision, magnetrons take longer to reach full power than transistors. I am also quite speculative of whether ADRAD actually still produces 1MW…
+
+:::
+
+#### Unfolding Second-Trip Echos with FM Chirp
+
+Another advantage of phase coherency is second-trip echo identification. Pulse compression can again be used, instead of just including a binary datastream, the frequency of the pulse can change throughout the duration of the pulse. This frequency can vary pulse-to-pulse and be identified by the receiver. This is referred to as FM chirp. If a received pulse is detected to have the previous pulse’s variation in frequency, it is therefore known to be a second trip echo, and the receiver HARDWARE can discard it or unfold it to the correct range. No fancy software algorithms, this is all done before a single line of code runs. This doesn’t completely solve the ‘Doppler dilemma’, but it makes the trade-off much less impactful. ADRAD, with its phase-incoherent transmitter, suffered from intense second-trip echoes, and filtering using a more rudimentary normalized coherent power thresholding resulted in the removal of some interesting meteorological data.
+
+#### Differential Phase
+
+Phase coherency also applies in the dual-pol realm! Combined, these two features allow for a product called “Differential Phase”, allowing for discerning liquid rainfall amounts, and is not subject to attenuation. This can also be used for research like the other dual-pol products, and can also correct attenuated reflectivity values.
+
+#### Staggered/Dual PRF
+
+<blockquote class="twitter-tweet" data-dnt="true"><p lang="en" dir="ltr">This will from here on be my go to example of how dual PRF works <a href="https://t.co/SCtC90kPnv">pic.twitter.com/SCtC90kPnv</a></p>&mdash; Sam Gardner (@samgardner_4) <a href="https://twitter.com/samgardner_4/status/1780131887983259923?ref_src=twsrc%5Etfw">April 16, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+Solid-State transmitters also have the ability to change their Pulse Repetition Frequency (PRF) rapidly. The PRF is what determines the maximum unambiguous range velocity. The range folding issue can be handled using pulse compression, so to mitigate velocity aliasing… we have staggered and dual PRF. Staggered PRF is a strategy where two consecutive scans are performed at the same elevation angle, while dual PRF alternates between two PRFs between small groups of pulses. This allows using a low PRF to obtain reflectivity, differential reflectivity, and correlation coefficient at long ranges, and high PRF to obtain velocity, spectrum width, and differential phase values near the radar. Using pulse compression to range unfold second-trip echoes, velocities can be collected from the high PRF scan outside the typical max unambiguous range. The shorter X-band wavelength does reduce the maximum unambiguous velocity, but by comparing the aliased velocities between the low and high PRFs, it is possible to dealias the velocities by subtracting integer multiples of the nyquist velocity at each PRF from the measured velocity of each PRF until the values agree. Again, this is all doable with no gimmicky “feature detection” software algorithms, and can be done entirely using hardware logic. ADRAD was never capable of any of these techniques.
+
+#### Maximum Range
+
+The advertised maximum range of the new radar is “60 miles” which gives an operating PRF near 1550 Hz. When compared to ADRAD’s 300 Hz PRF with a range of 310 miles… yeah, ADRAD had much longer range. But consider the situation: ADRAD was built before the WSR-88D (and even the WSR-74C) networks. A longer range radar made sense at the time because otherwise, there was no coverage at all. But in 2024, things are different, NEXRAD and the TDWR networks do exist, and between KFWS in Dallas, KGRK in Granger, TIAH in Houston, and the Corsicana CORAD S-band, College Station has plenty of radar coverage, just not low-level coverage. The surrounding radars have plenty of coverage of the low-levels in their respective areas, so there’s no reason for a radar in College Station to see far by using a longer wavelength that the reflector can’t handle, which is a perfect transition into the antenna comparison.
+
+### Antenna
+
+<blockquote class="twitter-tweet" data-dnt="true"><p lang="en" dir="ltr">Goodmorning from the top of Aggieland! <a href="https://t.co/AHACiZEmxv">pic.twitter.com/AHACiZEmxv</a></p>&mdash; Erik R. Nielsen (@eniels13) <a href="https://twitter.com/eniels13/status/1408019531805736961?ref_src=twsrc%5Etfw">June 24, 2021</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+**Summary**: ADRAD’s reflector was never appropriate for its wavelength, and ClimaVision’s narrow beamwidth will produce beautiful data. I’m not yet sure how to feel about the radome.
+
+#### Design
+
+Both ADRAD and ClimaVision’s antennas use a circular parabolic, axial feed antenna. Apart from the separate H and V channel feed horns on the ClimaVision antenna, there’s very little difference between the two designs.
+
+<blockquote class="twitter-tweet" data-dnt="true"><p lang="en" dir="ltr">Yesterday our team was in College Station, Texas for our media day with our newest university partners, Texas A&amp;M! We had the honor of sharing more about our partnership and mission to cover low-level weather observation gaps with press covering the event.<a href="https://t.co/etbIerchQz">https://t.co/etbIerchQz</a> <a href="https://t.co/LGTmlHmqon">pic.twitter.com/LGTmlHmqon</a></p>&mdash; Climavision (@climavision) <a href="https://twitter.com/climavision/status/1804183370143879181?ref_src=twsrc%5Etfw">June 21, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+#### Size, Wavelength, Beamwidth
+
+The diameter of ADRAD’s reflector was 4.88 meters. The transmit wavelength of 10.4 cm gave a 1.54 degree beamwidth. This is not good, even for a long-range surveillance radar. Overall antenna gain for ADRAD was 41.33dB. The ClimaVision system has a diameter of 2.44m, but with a transmit wavelength of 3.09cm, giving a beamwidth of 0.92 degrees, much more in line with NEXRAD. This provides much finer resolution detail of features. ADRAD’s longer wavelength was great for seeing far when that was necessary, but now that NEXRAD exists and it’s not a requirement to see so far, the large 1.54 degree beamwidth really was arguably ADRAD’s biggest downfall. The gain of ClimaVision’s antenna is more than a doubling on the linear scale, at 45.8 dB, again, compensating for the limited transmit power by increasing the Effective Isotropic Radiated Power.
+
+#### Radome
+
+Shockingly, the radome is a choice I’m not yet sure I agree with. A radome allows for the radar to run continuously, even during high wind situations like tropical cyclone landfalls (not unheard of in College Station, ADRAD had to be parked vertically several times, most recently during Hurricane Ike 2008, and at some point, the wind sheared the elevation brake off, damaging a large section of the rear waveguide). The radome will also lessen the need for maintenance of the pedestal/bearings, which is what killed ADRAD in the end. However, when the radome gets wet, this will increase the attenuation of the beam, and that stinks.
+
+![](radome.jpeg){.lightbox}
+
+#### Scan Rate
+
+ClimaVision’s smaller and protected antenna allows for a faster scan rate of up to 48 degrees per second, compared to ADRAD’s 18 degrees per second. A full PPI sweep now takes 7.5 seconds instead of 20 seconds. Especially given the focus the on low-levels, with little need to use higher elevations, this is an impressively fast update time. Even phased-array systems, which can steer the beam electroncially, are usually limited to a 60-90 degree azimuth range and must mechanically spin to capture a full PPI. While these systems are able to capture a full volume during a single rotation, a College Station based radar has no interest in the mid-/upper-levels of the atmosphere (they are already covered by NEXRAD), so I’m not even sure a phased-array system would justify its cost here.
+
+### Receiver
+
+![](sigmet-rx.jpeg){.lightbox}
+
+ADRAD’s receiver has a minimum detectable signal of -110 dBm and a dynamic range of 90 dB. ClimaVision’s has an MDS of -114 dBm (again, logarithmic scale, this means that the receiver can detect signals with less than half the power of ADRAD’s) and a dynamic range of 95 dB. Not much to say here, the new receiver is better in literally every way, and again contributes to making up for the lack of transmit power. Oh, and there are two of them, one for each channel.
+
+Officially, I don’t know this for certain, but having talked to people who do, I will make an “educated guess” that the new ClimaVision receiver can detect a target with a reflectivity of 0 dBZ at a range of 40km. ADRAD may have once been capable of this, but especially with the state of its duplexer, it was never going to again.
+
+## In summary, I think that even if ADRAD worked as it did in the late 90s, the ClimaVision system makes more sense as a gap-filling radar between the nearby NEXRAD sites.
+
+![](summary.png){.lightbox}
+
+### Data Availability
+
+Alright, fine, I’ll get to the controversial bit. There are essentially four classes of data users for a radar in College Station:
+
+– TAMU faculty and students
+– Local media
+– National Weather Service
+– Former students, weather enthusiasts, etc.
+
+Both ADRAD and ClimaVision provided Level 2 data in real time to TAMU faculty and students. With the new ClimaVision system, TAMU users will now be able to conduct and publish more research with it (dual pol!), so I think this is a major advantage for them. I’m not sure of the exact limitations on how long the embargo on publishing data or research using the data is, what (if any) the limitations are for how much data can be published, etc. TAMU students will have access to the entire ClimaVision network, not just their own, and I can see the one in Hamilton being useful for TASC chases in Gatesville.
+
+ADRAD was never able to provide data to local media. Technically if a station had the media version of GR2Analyst, it could, but there was never a way to guarantee its reliability to a degree that a station would’ve liked, and ADRAD was only run very infrequently. While I was at Texas A&M, I did try to work the technical side of creating a WSI Max compatible feed, but only made very limited progress, and the politics of publishing this feed was never really worked out. I don’t think it ever would’ve been possible. With the ClimaVision system, the radar will be run 24/7, and data will flow in real time to any media station that buys it, with support, and all of this is professionally managed infrastructure, not managed by an undergrad. I personally have no issue with ClimaVision wanting to be compensated (radars are expensive… as TAMU learned over the last 51 years…), especially from media who are using the data commercially.
+
+ADRAD was instrumental to the National Weather Service over the years. The most obvious case of this was March 21/22 of 2022, when I pulled an all-nighter to run the system during a tornado outbreak in the area. The power lines that supplied the KGRK 88D had been run over by a tornado earlier in the day, and ADRAD managed to run for over 24 hours straight. The Weather Service later thanked the department for running the radar, and had issued several warnings based on our data. The new ClimaVision system is reportedly accessible to the NWS via Synoptic Data/the National Mesonet Program. I have heard conflicting reports as to how easy it is for weather service forecasters to obtain the data. For what it’s worth, I am currently trying to open an edu-associated account with Synoptic Data, but the free tier has significantly less features than the commercial/NOAA tiers, and I’m not sure if I will get the radar data or not.
+
+Unlike ADRAD, ClimaVision does not let just anyone have access to the raw, ‘Level 2’ data feed for GR2Analyst or py-ART or whatever your favorite way of viewing those was. I can completely understand why this sucks, as I fall into this group personally (pending the edu account with Synoptic, which I don’t expect to work out). The only thing I can really say here is “ADRAD was never going to publish data again regardless”. Many efforts were made by the department writing proposals to many organizations to try to get ADRAD or a replacement funded, but sadly no one wanted to fund it. Considering that… the weather enthusiasts lost the L2 feed for the College Station radar in spring of 2023 when ADRAD died. The ClimaVision system didn’t kill the GR2 feed, it just exposed the feed’s death. If you fall into this category, I’d recommend following KBTX weather. The entire team are A&M former students, and they have access to the ClimaVision data. It’s not the same as getting to play with it in GR2 in real time, but you can still follow local area weather there, and I think the added uptime of the radar is worth this trade off.
+
+![A tornado we once scanned with ADRAD during an all-night adventure to set the ADRAD runtime record, which ended up succeding with a time of around 30 hours as I recall.](adrad-tornado.jpeg){.lightbox}
+
+So, the trade off is, we weather enthusiasts lost access to the data, but the local media stations get immediate access, 24/7. As much as it personally sucks… I think the ClimaVision system will have more reach and potential for the protection of life and property than ADRAD did.

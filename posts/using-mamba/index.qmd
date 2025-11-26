@@ -1,0 +1,52 @@
+---
+title: "mamba-ify your python"
+author: "Sam Gardner"
+date: "2023-09-12"
+---
+
+Does the following image bring about nightmares?
+
+![](eeek.png)
+
+Does managing conda environments hang over your head like a dark cloud?
+
+Is more of your research time spent waiting for Anaconda Navigator to open than doing the actual research?
+
+Don’t worry–there is an escape from this torture! mamba!
+
+
+For the uninitiated, this all has to do with python package management. Python is a fantastic programming language, but primarily because of the many many great packages you can install and use through python. There are packages for EVERYTHING, I use python for [radar](https://arm-doe.github.io/pyart/) and [lightning](https://github.com/deeplycloudy/xlma-python) meteorology, but researchers of all fields from [signal processing](https://docs.scipy.org/doc/scipy/reference/signal.html) to [astronomy](https://www.astropy.org/) to [molecular biologists](https://biopython.org/) all have niche packages designed by their communities, for their communities, to do their research with.
+
+To install these packages, you need a package manager. Python comes with its own built in package manager called ‘pip’, which is fine enough, but pip installs all packages globally. This is cool, but sometimes you want to switch back and forth between multiple versions of packages or different sets of packages. Pip is not capable of this.
+
+Anaconda, and Miniconda, are package managers developed by Anaconda, Inc. that have a concept of different ‘environments’ that the user can switch between quickly. Anaconda comes with a GUI and a set of pre-installed pacakges that are guaranteed to work with each other, making it user friendly. Miniconda does not, making it more flexible.
+
+But these have some limitations. The first is the above screenshot. Anaconda in particular is bad about taking FOREVER to search through your installed environment (it has to process all the packages you currently have installed to determine what version of the package you want to fetch, and since Anaconda comes with a set of preinstalled packages, it has to look through all of those), and a large/old enough miniconda environment can do the same. Additionally, Anaconda Inc’s licensing [does not allow free, commercialized use of the suite.](https://florianwilhelm.info/2021/09/Handling_Anaconda_without_getting_constricted/)
+
+mamba is a C++ drop in replacement for conda, except faster. You can install it into an existing anaconda or miniconda base environment, or, if the licensing is an issue or if your base environment is completely broken, completely remove (ana/mini)conda and install mambaforge.
+
+If you want to install it into an existing base environment (this is not recommended by the developers of mamba)
+`conda install -n base --override-channels -c conda-forge mamba 'python_abi=*=*cp*'`
+
+If you want to remove your current conda installation and replace it with mambaforge:
+
+Windows:
+
+1. Open windows settings->apps->scroll to miniconda or anaconda and remove it
+2. If you selected “add miniconda python to PATH” during installation, you will need to remove this manually. Search “env” in the start menu, select “Edit the system environment variables”->”Environment variables…” and delete all keys relating to conda.
+3. [Download](https://github.com/conda-forge/miniforge?tab=readme-ov-file#windows) the mambaforge windows installer and proceed with installation as described in the instructions.
+4. When running conda commands, replace “conda” with “mamba” and enjoy the extra time!
+
+macOS/Linux:
+1. Open a Terminal of your choice
+2. Type in `conda config --show-sources`
+3. Delete all paths listed in the output of the above command
+4. Type conda info and make a note of the “base environment” path. In the example below, it’s /Users/vm/miniconda3
+
+![](mac-instruct.png)
+
+5. Type `conda init --reverse --all`
+6. Delete the base environment path from step 4
+7. Exit your terminal and restart
+8. Type `curl -LO "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh" && bash Mambaforge-$(uname)-$(uname -m).sh`
+9. When running conda commands, replace “conda” with “mamba” and enjoy the extra time!

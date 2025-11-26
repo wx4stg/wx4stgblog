@@ -1,0 +1,61 @@
+---
+title: "How to build a self-hosted website"
+author: "Sam Gardner"
+date: "2023-01-15"
+---
+
+*Update 11/25/2025: most of this post is outdated. This site is now hosted on DigitalOcean's "droplet" VPS and uses Quarto, not WordPress.*
+
+So in the most “meta” post possible, the most interesting thing I’ve done recently is create this website. I wanted to do it the fun way, entirely self-hosted. I feel like the days of hosting your own website are numbered, with DDoS attacks on the rise and the ever-cheapening of hosting services like AWS, etc. (please don’t attack this site — I definitely don’t have the bandwidth to handle it). It honestly probably would’ve been cheaper to just use a hosting service, but I also wanted the “fun” of building a computer.
+
+This site is run on a system powered by the Ryzen 7950X… which yes, all I’m doing right now is running a website on it. I very easily could do this on a raspberry pi (if those weren’t unobtainium), but some day, after I graduate, I’d like to do post processing of weather models and observations. My language of choice for this is python, which is… inefficient to say the least. So I’ve taken the “just throw more hardware at it” approach. I got a free RAM kit from Micro Center which was nice, and the CPU was already discounted for holiday sale or something. I only took two pictures of the build itself, oh well.
+
+::: {layout-ncol=2}
+![](components.jpg)
+
+![as I’m writing this I realize I have installed the heat sinks with the Noctua logos upside down 🙁](final-build.jpg)
+:::
+
+Matplotlib is unfortunately entirely CPU-bound. As such I do not have a GPU in this system.
+
+The next fun challenge was picking a domain. wx4stg.com was an obvious choice.
+
+– The number in the name and the seemingly random combination of letters that don’t spell anything (just like t-a-m-c doesn’t spell anything either…) makes it cheaper.
+
+– However, it’s my ham radio callsign, so that “random” combination of letters and number doesn’t have any significance… except to me. It’s unlikely that anyone will want to buy it off me later.
+
+I chose Google domains because I want G-suite email and all the other services. Yes I know this is not privacy friendly. I would much rather use iCloud mail but Apple have decided that “if you trash an email, it gets automatically deleted after 30 days”, which I didn’t know about, for years… so I was trashing emails thinking that I could go back to them as long as I never emptied the trash… nope. And in Apple’s signature “we know better”, there’s no way to turn off that limitation.
+
+I would really much rather just host an email server myself, but after searching around, it seems that all of the big email providers “spam filter” out anything that comes from a self-hosted email server… so it seems I’m too late to the party there.
+
+As for software, the system is running Ubuntu Linux, specifically the Server 22.04 LTS channel. I picked this
+
+1. I first “learned” on a jailbroken iPhone, and jailbreak bootstraps have always been some derivative of the debian software stack. I know how the apt package manager works and have run an apt repository before. yum/rpm/dnf/pacman/etc. are much more unknown to me.
+2. it’s popular and everyone else does it.
+
+If you somehow came to this page because you want to set up your own website, I essentially just followed [this tutorial for LAMP](https://www.digitalocean.com/community/tutorials/how-to-install-lamp-stack-on-ubuntu) and another for [phpmyadmin](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu) by digitalocean. I have some experience (Texas A&M HDWX) with managing a LAMP stack, but I had never built one from zero before, and those guides got me up and running within ~15 minutes. (if anyone from digitalocean is reading this--you guys rock for making those tutorials and updating them)
+
+Then the fun part, actually getting traffic to my computer. When I was ~14, I had self-hosted a Minecraft server for my friends (this was before hosting providers for Minecraft were really a thing, and 14-year old me would’ve had no money or card or paypal to pay for it anyway, so self-hosted was the only option. I ran it on a very old, even for the time, laptop that I also played Minecraft on at the same time… needless to say it wasn’t exactly the best experience, but…) it got me experience with IPs and ports from a very young age. Unfortunately I live in an apartment complex in College Station. Solution: just run the server at my parents house. Port forwarding was almost straightforward, my parents have Comcast Xfinity internet. The Xfinity app is the only way to port forward these days, you can no longer just allow a port from the local http server hosted by the router, which has positives and negatives:
+
+\+ I can open a port on their router from ANYWHERE, even without being on network. This gives some additional security as I can, from college station, decide that I need SSH access, open port 22, log in, make whatever changes I need, and then close the port for security.
+
+\– If the app has a bug, which it did, that prevents me from adding a port forward, then the only option is to factory reset the router.
+
+Anyway, opening ports 80 (http) and 443 (https) was easy enough. Yes I did say https, and yes if you look in your browser’s address bar right now, there should be an HTTPS lock present. I had always heard that this was a pain and cost money to buy an SSL cert from a trusted CA, but huge thanks to [Let’s Encrypt](https://letsencrypt.org/) and the [Electronic Frontier Foundation](https://www.eff.org/) for making the process take < 5 mins.
+
+This leads to the not-so-fun part, binding “wx4stg.com” to my parents’ public IP address. Shout-out to Justin at Xfinity support for walking me through how to do this, but essentially there are two routes: buying an IPv4 static IP ($$$) or using dynamic DNS (free). I chose the latter, of course. As I understand it, Comcast (like everyone) is conserving their IPv4 space, and somehow it’s more efficient for them to change your public address, randomly? I honestly don’t see how this saves any space. But since a computer can google (or ask an API…) “whats my public IP” and always be aware of its public IP (even if it’s dynamic), that same computer can then inform google domains of changes to the public address, and google can update their DNS records. I’m not sure if this will be sustainable forever, but for now that’s what I’m using. One caveat if you’re reading this like a tutorial, ddclient’s google domains support didn’t work for me as it was trying to update an A record with an IPv6 address, which you … can’t do. I had to configure ddclient for an “other” service:
+
+```
+$ cat /etc/ddclient.conf
+protocol=dyndns2
+use=web
+server=domains.google.com
+ssl=yes
+login='my_username'
+password='my_pw'
+wx4stg.com
+```
+
+Finally, I’m using wordpress.org (the cool HTML/PHP software for self-hosting a blog) which is different than wordpress.com (which is itself a hosting service). I’m not yet entirely sure if I like wordpress or not. I really really wish there were something like Apple’s [AutoLayout](https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/AutolayoutPG/index.html) that could create HTML/php. But oh well. For now I’m not yet hosting weather products here (I’ll continue to leach TAMU’s server power until they tell me no), but when that happens, that’ll almost certainly require custom HTML/php.
+
+Thats all for now I guess. If anyone is actually following this like a tutorial and I forgot something, send me an email.

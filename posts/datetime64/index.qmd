@@ -1,0 +1,41 @@
+---
+title: "Converting from numpy datetime64 to python datetime and back."
+author: "Sam Gardner"
+date: "2024-12-04"
+---
+
+The [current top answer on stackoverflow](https://stackoverflow.com/questions/13703720/converting-between-datetime-timestamp-and-datetime64) is (in my not-so-humble opinion) incorrect. You do not need to import pandas or any other nonsense to convert a numpy datetime64 to a python datetime or vice versa.
+
+# TL;DR
+```python
+pydatetime = numpy_datetime.astype('datetime64[us]').astype('O')
+numpy_datetime = np.array(pydatetime).astype('datetime64')
+```
+
+# Why the need to convert the numpy datetime to a microsecond datetime64 before converting to an object/’O’ type?
+```{python}
+# Define our datetime64 object
+import numpy as np
+numpy_datetime = np.datetime64('2024-12-03T00:00:00')
+
+# Convert to datetime.datetime
+pydatetime = numpy_datetime.astype('O')
+print(pydatetime.strftime('%Y-%m-%d'))
+```
+
+You might be tempted to say, "Hey, wait a minute! this works fine. the pydatetime variable is a datetime.datetime object! That means the silly conversion to microseconds in the first example must be unnecessary!"
+
+…and well, sometimes it is. But, lets try the same example, but this time with a more precise datetime object:
+
+```{python}
+#| error: true
+# Define our datetime64 object, this time with a nanosecond-level precision
+import numpy as np
+numpy_datetime = np.datetime64('2024-12-03T00:00:00.123456789')
+
+# Convert to datetime.datetime
+pydatetime = numpy_datetime.astype('O')
+print(pydatetime.strftime('%Y-%m-%d %H:%M:%S.%f'))
+```
+
+Well, that didn’t go so great. Why is the pydatetime variable an integer now? The difference in behavior lies in the difference between datetime.datetime objects and numpy datetime64 objects and the reason they exist in the first place: numpy objects can have more precision, down to 1 nanosecond (1e-9 seconds). This makes them useful for certain [scientific applications](https://github.com/deeplycloudy/lmaworkshop/blob/8a09849bcca2434face702048fae6b5c051eab46/LEE-2023/LMAHardware.ipynb) that require this level of precision. However, being a numpy dtype, they don’t have all the nice comforts of the builtin datetime objects like strftime and strptime. Since datetime objects can’t have nanosecond-level precision like datetime64 objects can, if you ask numpy to convert the datetime64 object to a “generic object type variable” (the ‘O’ dtype), numpy gives you an integer number of nanoseconds since [1 Jan 1970](https://en.wikipedia.org/wiki/Unix_time). This means that if you want to convert to a datetime object, you MUST give up precision beyond one microsecond (1e-6 second), and you must do this by explicitly casting to a microsecond-precision datetime64, then casting to datetime.datetime, as shown in the first example.

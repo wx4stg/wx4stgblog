@@ -1,0 +1,13 @@
+---
+title: "This website uses WordPress. It probably won’t for much longer."
+author: "Sam Gardner"
+date: "2024-10-17"
+---
+
+I have some concerns with how a WordPress, a *technically* open source project, depends on plugins (also open source, most of the time), that are hosted in a centralized repository. This repository can be taken over at anytime by Automattic. This itself is not really a concern for me, I was perfectly happy with my packages for the iOS jailbreak community (back when that was a thing—throwback!) being hosted by BigBoss and Chariz. Those were also controlled by dictators, but they were benevolent.
+
+it’s clear to me that Automattic is not benevolent and will destroy the trust in open-source if you’re sponsored by the wrong people.
+
+I’ll be switching this site over to “something different” when I get a chance. It will probably be [Quarto](https://quarto.org/) as I’ve been using that for the documentation for xlma-python, but probably won’t be until the end of the semester.
+
+See ya then!

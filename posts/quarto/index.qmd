@@ -1,0 +1,18 @@
+---
+title: "Website updates, static HTML is the future"
+author: "Sam Gardner"
+date: "2025-11-25"
+---
+
+As [previously mentioned](/posts/wordpress-concerns/), this blog is now using Quarto. I've found this to have been relatively smooth experience, and I probably would've used Quarto from the beginning if I'd known about it. Everything is statically generated with no SQL database or PHP required on the server.
+
+This is especially good since the site is now hosted by DigitalOcean. I mentioned how useful their guides were in my first ever post, and it turns out their web hosting is pretty cheap too. With everything statically generated, the server doesn't have to be too powerful, just good enough to host the content every time one of CloudFlare's robots pings it for caching.
+
+I stopped hosting this site myself due to reliability issues with the computer I built. Last summer I tried tripling the RAM installed and it hasn't been stable since no matter what I do. Additionally, having it located at my parents' house proved challenging as the electric grid isn't terribly reliable in the middle of nowhere.
+
+I am of course disappointed that I couldn't keep up with the self-hosting effort for the spirit of independence and "wow, it's 2025 and any random guy can just put up a website for free". DigitalOcean seems to be about the same as any other cloud provider, in that they charge for egress of data. Hypothetically, this means that if my website took off in popularity, I could wake up to an insurmountable bill. I *think* I've mitigated this with [a script](https://github.com/wx4stg/droplet-monitor) that monitors my usage and shuts off my server if it goes crazy. As mentioned, the site is also behind cloudflare, and the server's firewall is set so that *only* cloudflare's IPs can reach it.
+
+This site *might* be simple enough to just host on GitHub pages or something similar? I'm not sure but I'll look into that. I'm clearly okay with this blog's [source code being entirely pubilc](https://github.com/wx4stg/wx4stgblog), but I may want to keep future projects on this site (slightly) closer to my chest.
+
+Statically generating everything has gotten extremely cool, especially with the rise of WASM. I have plenty of ideas, ha ha.
+

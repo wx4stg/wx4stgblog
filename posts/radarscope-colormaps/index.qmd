@@ -4,6 +4,9 @@ author: "Sam Gardner"
 date: "2025-11-27"
 ---
 
+## These are accessible radar colormaps, some of which I've contributed to.
+
+# These links can be used to import them directly into RadarScope.
 - [ChaseSpectral (Reflectivity)](radarscope:///palette?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwx4stg%2Fpal_colormaps%2Frefs%2Fheads%2Fmain%2FChaseSpectral_BR.pal)
 - [cmocean balance (Velocity)](radarscope:///palette?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwx4stg%2Fpal_colormaps%2Frefs%2Fheads%2Fmain%2Fbalance_BV.pal)
 - [thermal_vent (Velocity)](radarscope:///palette?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwx4stg%2Fpal_colormaps%2Frefs%2Fheads%2Fmain%2Fthermal_vent.pal)
